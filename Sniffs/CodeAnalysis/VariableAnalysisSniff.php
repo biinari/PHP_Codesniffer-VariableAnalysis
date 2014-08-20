@@ -890,6 +890,10 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
             //  $this within a closure is invalid
             //  Note: have to fetch code from $tokens, T_CLOSURE isn't set for conditions codes.
             if ($tokens[$scopePtr]['code'] === T_CLOSURE) {
+                if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+                    //  $this within a closure is valid for PHP 5.4.0+ if defined within a class which is checked later
+                    continue;
+                }
                 return false;
             }
             if ($scopeCode === T_CLASS) {
@@ -966,6 +970,10 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
                     //  self within a closure is invalid
                     //  Note: have to fetch code from $tokens, T_CLOSURE isn't set for conditions codes.
                     if ($tokens[$scopePtr]['code'] === T_CLOSURE) {
+                        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+                            //  self within a closure is valid for PHP 5.4.0+ if defined within a class which is checked later
+                            continue;
+                        }
                         $phpcsFile->addError("Use of {$err_desc}%s inside closure.", $stackPtr,
                             $err_class,
                             array("\${$varName}"));
