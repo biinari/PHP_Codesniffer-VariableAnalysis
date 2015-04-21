@@ -559,7 +559,7 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
 
         if ($this->isVariableUndefined($varName, $stackPtr, $currScope) === true) {
             // We haven't been defined by this point.
-            $phpcsFile->addWarning("Variable %s is undefined.", $stackPtr,
+            $phpcsFile->addError("Variable %s is undefined.", $stackPtr,
                 'UndefinedVariable',
                 array("\${$varName}"));
         }
@@ -819,7 +819,7 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
             $this->markVariableRead($varName, $stackPtr, $currScope);
             if ($this->isVariableUndefined($varName, $stackPtr, $currScope) === true) {
                 // We haven't been defined by this point.
-                $phpcsFile->addWarning("Variable %s is undefined.", $stackPtr,
+                $phpcsFile->addError("Variable %s is undefined.", $stackPtr,
                     'UndefinedVariable',
                     array("\${$varName}"));
                 return true;
