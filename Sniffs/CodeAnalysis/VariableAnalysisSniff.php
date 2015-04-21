@@ -61,6 +61,7 @@ class VariableInfo {
         'static' => 'static variable',
         'global' => 'global variable',
         'bound'  => 'bound variable',
+        'instance' => 'instance variable',
         );
 
     function __construct($varName) {
@@ -383,6 +384,14 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
     }//end register()
 
     /**
+     * Caches the token positions of T_CLASS tokens.  This is heavily
+     * used in scope resolution of instance variables.
+     *
+     * @var array
+     */
+    private $classCache = null;
+
+    /**
      * Processes this test, when one of its tokens is encountered.
      *
      * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
@@ -394,6 +403,17 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr) {
         $tokens = $phpcsFile->getTokens();
         $token  = $tokens[$stackPtr];
+
+        // build the cache of T_CLASS tokens if it's not built yet
+        if ($this->classCache === null) {
+            $this->classCache = array();
+            foreach ($tokens as $ptr => $tok) {
+                if ($tok['code'] === T_CLASS) {
+                    $this->classCache[$ptr] = $tok;
+                }
+            }
+            krsort($this->classCache);
+        }
 
         //if ($token['content'] == '$param') {
         //echo "Found token on line {$token['line']}.\n" . print_r($token, true);
@@ -412,6 +432,11 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
         }
         if (($token['code'] === T_STRING) && ($token['content'] === 'compact')) {
             return $this->processCompact($phpcsFile, $stackPtr);
+        }
+        if (($token['code'] === T_STRING)) {
+            if ($this->isInstanceVariable($phpcsFile, $stackPtr)) {
+                return $this->processVariable($phpcsFile, $stackPtr);
+            }
         }
         if (($token['code'] === T_CLOSE_CURLY_BRACKET) &&
             isset($token['scope_condition'])) {
@@ -564,6 +589,29 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
         return false;
     }
 
+    /**
+     * Test if current token is an instance variable.
+     *
+     * This is true if the previous token is -> and the next token is not (.
+     *
+     * @param $phpcsFile
+     * @param $stackPtr
+     */
+    protected function isInstanceVariable(PHP_CodeSniffer_File $phpcsFile, $stackPtr) {
+        $tokens = $phpcsFile->getTokens();
+
+        if ($prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true, null, true)) {
+            if ($tokens[$prevPtr]['code'] === T_OBJECT_OPERATOR) {
+                if ($nextPtr = $phpcsFile->findNext(T_WHITESPACE, $stackPtr + 1, null, true, null, true)) {
+                    if ($tokens[$nextPtr]['code'] !== T_OPEN_PARENTHESIS) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     function findVariableScope(
         PHP_CodeSniffer_File $phpcsFile,
         $stackPtr
@@ -571,25 +619,28 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
         $tokens = $phpcsFile->getTokens();
         $token  = $tokens[$stackPtr];
 
-        $in_class = false;
+        if ($this->isInstanceVariable($phpcsFile, $stackPtr)) {
+            foreach ($this->classCache as $ptr => $_) {
+                if ($ptr < $stackPtr) {
+                    return $ptr;
+                }
+            }
+            return false;
+        }
+
         if (!empty($token['conditions'])) {
             foreach (array_reverse($token['conditions'], true) as $scopePtr => $scopeCode) {
                 if (($scopeCode === T_FUNCTION) || ($scopeCode === T_CLOSURE)) {
                     return $scopePtr;
                 }
                 if (($scopeCode === T_CLASS) || ($scopeCode === T_INTERFACE)) {
-                    $in_class = true;
+                    return $scopePtr;
                 }
             }
         }
 
         if (($scopePtr = $this->findFunctionPrototype($phpcsFile, $stackPtr)) !== false) {
             return $scopePtr;
-        }
-
-        if ($in_class) {
-            // Member var of a class, we don't care.
-            return false;
         }
 
         // File scope, hmm, lets use first token of file?
@@ -1010,6 +1061,26 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
         return true;
     }
 
+    protected function checkForInstanceDeclaration(
+        PHP_CodeSniffer_File $phpcsFile,
+        $stackPtr,
+        $varName,
+        $currScope
+    ) {
+        $tokens = $phpcsFile->getTokens();
+        $token  = $tokens[$stackPtr];
+
+        // Search backwards for first token that isn't whitespace.
+        $instPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true, null, true);
+        if (($instPtr === false) || (!in_array($tokens[$instPtr]['code'], array(T_PRIVATE, T_PUBLIC, T_PROTECTED, T_VAR)))) {
+            return false;
+        }
+
+        // It's an instance property declaration.
+        $this->markVariableDeclaration($varName, 'instance', null, $stackPtr, $currScope);
+        return true;
+    }
+
     protected function checkForStaticDeclaration(
         PHP_CodeSniffer_File $phpcsFile,
         $stackPtr,
@@ -1289,6 +1360,11 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
 
         // OK, are we within a list (...) = construct?
         if ($this->checkForListAssignment($phpcsFile, $stackPtr, $varName, $currScope)) {
+            return;
+        }
+
+        // Are we an instance declaration?
+        if ($this->checkForInstanceDeclaration($phpcsFile, $stackPtr, $varName, $currScope)) {
             return;
         }
 
