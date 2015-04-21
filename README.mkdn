@@ -9,6 +9,8 @@ variable use.
  * Warns if variables are set or declared but never used within that scope.
  * Warns if variables are redeclared within same scope.
  * Warns if $this, self::$static_member, static::$static_member is used outside class scope.
+ * (new) Allows $this inside closures in PHP >=5.4
+ * (new) Add analysis of instance variables ($this->...)
 
 INSTALLATION
 ------------
