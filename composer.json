@@ -1,0 +1,8 @@
+{
+  "name": "bamboohr/variable-analysis",
+    "description": "Provides PHP CodeSniffer sniffs to find unused and undefined variables.",
+    "require": {
+      "php": ">=5.5.0",
+      "squizlabs/php_codesniffer": ">=2.0.0"
+    }
+}
