@@ -896,7 +896,7 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
                 }
                 return false;
             }
-            if ($scopeCode === T_CLASS) {
+            if ($scopeCode === T_CLASS || $scopeCode === T_TRAIT) {
                 return true;
             }
         }
