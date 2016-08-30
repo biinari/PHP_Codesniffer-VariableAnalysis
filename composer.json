@@ -8,5 +8,5 @@
     "simplyadmire/composer-plugins" : "master"
   },
   "license": "BSD",
-  "minimum-stability" : "dev"
+  "minimum-stability": "dev"
 }
