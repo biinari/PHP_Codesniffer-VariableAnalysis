@@ -1,5 +1,6 @@
 {
   "name": "ingatlancom/variable-analysis",
+  "type": "phpcodesniffer-standard",
   "description": "Provides PHP CodeSniffer sniffs to find unused and undefined variables.",
   "require": {
     "php": ">=5.3.0",
