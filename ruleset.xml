@@ -3,7 +3,7 @@
  <description>Run ./install.sh and choose from the following rules to your standrd's ruleset.xml.</description>
 
  <!-- If you want everything, with the defaults, just include this line -->
- <rule ref="Sniffs/CodeAnalysis.VariableAnalysis"/>
+ <rule ref="CodeAnalysis.VariableAnalysis"/>
  <!--
     You can also refer to these policy codes to customize them:
       Generic.CodeAnalysis.VariableAnalysis.UndefinedVariable

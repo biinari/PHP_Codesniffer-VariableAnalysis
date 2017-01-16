@@ -62,7 +62,7 @@ class VariableInfo {
         'global' => 'global variable',
         'bound'  => 'bound variable',
         'instance' => 'instance variable',
-        );
+    );
 
     function __construct($varName) {
         $this->name = $varName;
@@ -81,7 +81,7 @@ class VariableInfo {
  * @copyright 2011 Sam Graham <php-codesniffer-variableanalysis BLAHBLAH illusori.co.uk>
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniffer_Sniff
+class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements PHP_CodeSniffer_Sniff
 {
     /**
      * The current phpcsFile being checked.
@@ -572,10 +572,8 @@ class Generic_Sniffs_CodeAnalysis_VariableAnalysisSniff implements PHP_CodeSniff
         if ($this->isVariableUndefined($varName, $stackPtr, $currScope) === true) {
             // We haven't been defined by this point.
            if (!$this->validUndefinedVariableNames || !in_array($varName, $this->validUndefinedVariableNames)) {
-               $phpcsFile->addWarning("Variable %s is undefined.", $stackPtr,
-                    'UndefinedVariable',
-                    array("\${$varName}"));
-            }
+               $phpcsFile->addError("Variable %s is undefined.", $stackPtr,'UndefinedVariable',array("\${$varName}"));
+           }
         }
         return true;
     }
