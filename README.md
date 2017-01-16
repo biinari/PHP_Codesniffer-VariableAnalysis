@@ -1,6 +1,10 @@
 PHP_CodeSniffer VariableAnalysis
 ================================
 
+Forked from https://github.com/grohiro/PHP_Codesniffer-VariableAnalysis and merged different PRs.
+
+
+
 Plugin for PHP_CodeSniffer static analysis tool that adds analysis of problematic
 variable use.
 
@@ -12,19 +16,21 @@ variable use.
  * Allows $this inside closures in PHP >=5.4
  * Add analysis of instance variables ($this->...)
 
-    INSTALLATION
-    ------------
+INSTALLATION
+------------
 
-    Run ./install.sh -h to get install help.
+    composer require ksjogo/variable-analysis
 
-    For a default install of PHP_Codesniffer via PEAR with PEAR in ~/pear you should be
-    safe to just run ./install.sh to use the default options, then copy the rules from
-    ruleset.xml into your own ruleset.xml.
+Then add
 
-    CUSTOMIZATION
-    -------------
+    <rule ref="VariableAnalysis"/>
 
-    There's a variety of options to customize the behaviour of VariableAnalysis, take
+to your ruleset.xml.
+
+CUSTOMIZATION
+-------------
+
+There's a variety of options to customize the behaviour of VariableAnalysis, take
 a look at the included ruleset.xml for commented examples of a configuration.
 
 KNOWN ISSUES & BUGS
