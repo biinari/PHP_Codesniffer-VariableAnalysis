@@ -9,22 +9,22 @@ variable use.
  * Warns if variables are set or declared but never used within that scope.
  * Warns if variables are redeclared within same scope.
  * Warns if $this, self::$static_member, static::$static_member is used outside class scope.
- * (new) Allows $this inside closures in PHP >=5.4
- * (new) Add analysis of instance variables ($this->...)
+ * Allows $this inside closures in PHP >=5.4
+ * Add analysis of instance variables ($this->...)
 
-INSTALLATION
-------------
+    INSTALLATION
+    ------------
 
-Run ./install.sh -h to get install help.
+    Run ./install.sh -h to get install help.
 
-For a default install of PHP_Codesniffer via PEAR with PEAR in ~/pear you should be
-safe to just run ./install.sh to use the default options, then copy the rules from
-ruleset.xml into your own ruleset.xml.
+    For a default install of PHP_Codesniffer via PEAR with PEAR in ~/pear you should be
+    safe to just run ./install.sh to use the default options, then copy the rules from
+    ruleset.xml into your own ruleset.xml.
 
-CUSTOMIZATION
--------------
+    CUSTOMIZATION
+    -------------
 
-There's a variety of options to customize the behaviour of VariableAnalysis, take
+    There's a variety of options to customize the behaviour of VariableAnalysis, take
 a look at the included ruleset.xml for commented examples of a configuration.
 
 KNOWN ISSUES & BUGS
