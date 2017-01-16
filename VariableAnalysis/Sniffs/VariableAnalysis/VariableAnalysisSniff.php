@@ -848,7 +848,34 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
         }
         return false;
     }
+    
+    /**
+     * isset() marks a variable as declared
+     */
+    protected function checkForIsset(
+        PHP_CodeSniffer_File $phpcsFile,
+        $stackPtr,
+        $varName,
+        $currScope
+    ) {
+        $tokens = $phpcsFile->getTokens();
+        $token  = $tokens[$stackPtr];
 
+        // Are we an isset() parameter?
+        if (($openPtr = $this->findContainingBrackets($phpcsFile, $stackPtr)) === false) {
+            return false;
+        }
+
+        $catchPtr = $phpcsFile->findPrevious(T_WHITESPACE,
+            $openPtr - 1, null, true, null, true);
+        if (($catchPtr !== false) &&
+            ($tokens[$catchPtr]['code'] === T_ISSET)) {
+            $this->markVariableAssignment($varName, $stackPtr, $currScope);
+            return true;
+        }
+        return false;
+    }
+ 
     protected function checkForCatchBlock(
         PHP_CodeSniffer_File $phpcsFile,
         $stackPtr,
@@ -1353,6 +1380,11 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
             return;
         }
 
+        // Are we an isset() parameter?
+        if ($this->checkForIsset($phpcsFile, $stackPtr, $varName, $currScope)) {
+            return;
+        }
+
         // Are we a catch parameter?
         if ($this->checkForCatchBlock($phpcsFile, $stackPtr, $varName, $currScope)) {
             return;
@@ -1590,5 +1622,3 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
         }
     }
 }//end class
-
-?>
