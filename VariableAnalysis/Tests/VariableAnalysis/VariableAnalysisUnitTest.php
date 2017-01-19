@@ -100,16 +100,20 @@ class VariableAnalysis_Tests_VariableAnalysis_VariableAnalysisUnitTest extends A
             //    determine that these are undeclared:
             //      $this->member_var
             //      self::$static_member_var
-            //FIXME: verify if we have a regression here
             ($base += 12) => 0,
+            ($base + 1)   => [0, 1],  //  $this->member_var
+            //FIXME: should we check that
+            //($base + 1)   => [0, 1],  //  self::$static_member_var
             //  ClassWithMembers->method_with_member_var() line (+10)
-            //FIXME: Static meber var is used?
             //    no warnings.
             //    We can't/don't inspect the class inheritence so we can't
             //    determine that these are undeclared:
             //      $this->no_such_member_var
             //      self::$no_such_static_member_var
             ($base += 10)  => 0,
+            //FIXME: Static meber var is actually used?
+            //($base + 1)   => [0, 1],  //     static $static_member_var;
+            ($base + 2)   => [0, 1],  //  $this->no_such_member_var
             //  function_with_this_outside_class() line (+9)
             ($base += 9)  => 0,
             ($base + 1)   => [0, 1],  //  $this
@@ -161,11 +165,11 @@ class VariableAnalysis_Tests_VariableAnalysis_VariableAnalysisUnitTest extends A
             //  ClassWithThisInsideClosure->method_with_this_inside_closure() line (+16)
             ($base += 16) => 0,
             ($base + 3)   => 1,  //  $inner_param
-            ($base + 4)   => 1,  //  $this
-            ($base + 5)   => 1,  //  $this
+            ($base + 4)   => 0,  //  $this - fine with ongoing PHP
+            ($base + 5)   => 0,  //  $this - fine with ongoing PHP
             //  ClassWithSelfInsideClosure->method_with_self_inside_closure() line (+15)
             ($base += 15) => 0,
-            ($base + 3)   => array(0, 1),  //  $self::$static_member
+            ($base + 3)   => 0,  //  $self::$static_member
             //  function_with_inline_assigns() line (+9)
             ($base += 9)  => 0,
             ($base + 1)   => [0, 1],  //  $var
