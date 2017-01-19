@@ -2,8 +2,7 @@ PHP_CodeSniffer VariableAnalysis
 ================================
 
 Forked from https://github.com/grohiro/PHP_Codesniffer-VariableAnalysis and merged different PRs.
-
-
+Code Modernization for PHP7 and ongoing changes coming up.
 
 Plugin for PHP_CodeSniffer static analysis tool that adds analysis of problematic
 variable use.
@@ -19,7 +18,7 @@ variable use.
 INSTALLATION
 ------------
 
-    composer require ksjogo/variable-analysis
+    composer require --global ksjogo/variable-analysis
 
 Then add
 

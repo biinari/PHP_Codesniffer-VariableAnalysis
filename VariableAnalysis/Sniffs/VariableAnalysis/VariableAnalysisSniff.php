@@ -335,31 +335,39 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
 
     /**
      *  Allows an install to extend the list of known pass-by-reference functions
-     *  by defining generic.codeanalysis.variableanalysis.sitePassByRefFunctions.
+     *  by defining variableanalysis,variableanalysis.variableanalysis.sitePassByRefFunctions.
      */
     public $sitePassByRefFunctions = null;
 
     /**
      *  Allows exceptions in a catch block to be unused without provoking unused-var warning.
-     *  Set generic.codeanalysis.variableanalysis.allowUnusedCaughtExceptions to a true value.
+     *  Set variableanalysis.variableanalysis.variableanalysis.allowUnusedCaughtExceptions to a true value.
      */
     public $allowUnusedCaughtExceptions = false;
 
     /**
      *  Allow function parameters to be unused without provoking unused-var warning.
-     *  Set generic.codeanalysis.variableanalysis.allowUnusedFunctionParameters to a true value.
+     *  Set variableanalysis.variableanalysis.variableanalysis.allowUnusedFunctionParameters to a true value.
      */
     public $allowUnusedFunctionParameters = false;
 
     /**
+     *  Allow all instance variables reads as we do not check inheritance etc.
+     *  Set variableanalysis.variableanalysis.variableanalysis.allowUnusedFunctionParameters to a true value.
+     */
+    public $allowAllInstanceVariables = false;
+
+    /**
      *  A list of names of placeholder variables that you want to ignore from
      *  unused variable warnings, ie things like $junk.
+     *  Set variableanalysis.variableanalysis.variableanalysis.validUnusedVariableNames to preset these.
      */
     public $validUnusedVariableNames = null;
 
     /**
      *  A list of names of variables that you want to ignore from
      *  undefined variable warnings
+     *  Set variableanalysis.variableanalysis.variableanalysis.validUndefinedVariableNames to preset these.
      */
     public $validUndefinedVariableNames = null;
 
@@ -611,6 +619,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
      */
     protected function isInstanceVariable(PHP_CodeSniffer_File $phpcsFile, $stackPtr) {
         $tokens = $phpcsFile->getTokens();
+        xdebug_break();
 
         if ($prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true, null, true)) {
             if ($tokens[$prevPtr]['code'] === T_OBJECT_OPERATOR) {
@@ -1369,6 +1378,11 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
         //   Declares as a static
         //   Assignment via foreach (... as ...) { }
         //   Pass-by-reference to known pass-by-reference function
+
+        //all instance variables are fine if the user says so
+        if ($this->allowAllInstanceVariables && $this->isInstanceVariable($phpcsFile, $stackPtr)) {
+            return;
+        }
 
         // Are we a $object->$property type symbolic reference?
         if ($this->checkForSymbolicObjectProperty($phpcsFile, $stackPtr, $varName, $currScope)) {

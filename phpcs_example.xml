@@ -1,21 +1,19 @@
 <?xml version="1.0"?>
-<ruleset name="PHP_Codesniffer Plugins Generic">
- <description>Run ./install.sh and choose from the following rules to your standrd's ruleset.xml.</description>
+<ruleset name="Variable Analysis">
+ <description>Copy this to your ~/phpcs.xml after doing composer require --global ksjogo/variable-analysis.</description>
 
  <!-- If you want everything, with the defaults, just include this line -->
- <rule ref="VariableAnalysis.VariableAnalysis.VariableAnalysis"/>
- <!--
-    You can also refer to these policy codes to customize them:
-      VariableAnalysis.VariableAnalysis.VariableAnalysis.UndefinedVariable
-      VariableAnalysis.VariableAnalysis.VariableAnalysis.UnusedVariable
-      VariableAnalysis.VariableAnalysis.VariableAnalysis.VariableRedeclaration
-      VariableAnalysis.VariableAnalysis.VariableAnalysis.SelfOutsideClass
- -->
+ <rule ref="VariableAnalysis"/>
 
- <!-- Include this block to customize VariableAnalysis behaviour -->
+ <!-- Or iclude this block to customize VariableAnalysis behaviour -->
  <rule ref="VariableAnalysis.VariableAnalysis.VariableAnalysis">
-  <properties>
-   <!--
+   <properties>
+  <!--
+     We are not doing any deep analysis, so we cannot check nested instance variables etc.
+     Just allow them.
+  -->
+   <property name="allowInstanceVariables" value="false"/>
+    <!--
       Include the following property if you want to include your own list of pass-by-reference
       functions defined in your codebase.
       Format is "function:argnum" or "function:argnum1,argnum2" etc.
@@ -70,5 +68,4 @@
     "/>
   </properties>
  </rule>
-
 </ruleset>
