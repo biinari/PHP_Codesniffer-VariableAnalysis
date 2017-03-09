@@ -1429,6 +1429,11 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
             return;
         }
 
+        // Are we an instance declaration?
+        if ($this->checkForInstanceDeclaration($phpcsFile, $stackPtr, $varName, $currScope)) {
+            return;
+        }
+
         // Is the next non-whitespace an assignment?
         if ($this->checkForAssignment($phpcsFile, $stackPtr, $varName, $currScope)) {
             return;
@@ -1436,11 +1441,6 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
 
         // OK, are we within a list (...) = construct?
         if ($this->checkForListAssignment($phpcsFile, $stackPtr, $varName, $currScope)) {
-            return;
-        }
-
-        // Are we an instance declaration?
-        if ($this->checkForInstanceDeclaration($phpcsFile, $stackPtr, $varName, $currScope)) {
             return;
         }
 
