@@ -619,7 +619,6 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
      */
     protected function isInstanceVariable(PHP_CodeSniffer_File $phpcsFile, $stackPtr) {
         $tokens = $phpcsFile->getTokens();
-        xdebug_break();
 
         if ($prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true, null, true)) {
             if ($tokens[$prevPtr]['code'] === T_OBJECT_OPERATOR) {
