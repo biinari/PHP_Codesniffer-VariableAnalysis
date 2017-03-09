@@ -54,6 +54,7 @@ class VariableInfo {
     public $firstInitialized;
     public $firstRead;
     public $ignoreUnused = false;
+    public $visibility;
 
     static $scopeTypeDescriptions = array(
         'local'  => 'variable',
@@ -63,6 +64,12 @@ class VariableInfo {
         'bound'  => 'bound variable',
         'instance' => 'instance variable',
     );
+
+    public function isIgnoreUnused()
+    {
+        return $this->ignoreUnused === true
+          || in_array($this->visibility, array(T_PUBLIC, T_PROTECTED));
+    }
 
     function __construct($varName) {
         $this->name = $varName;
@@ -515,8 +522,9 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
         $varInfo->firstInitialized = $stackPtr;
     }
 
-    function markVariableDeclaration($varName, $scopeType, $typeHint, $stackPtr, $currScope, $permitMatchingRedeclaration = false) {
+    function markVariableDeclaration($varName, $scopeType, $typeHint, $stackPtr, $currScope, $permitMatchingRedeclaration = false, $visibility = null) {
         $varInfo = $this->getVariableInfo($varName, $currScope);
+        $varInfo->visibility = $visibility;
         if (isset($varInfo->scopeType)) {
             if (($permitMatchingRedeclaration === false) ||
                 ($varInfo->scopeType !== $scopeType)) {
@@ -1131,8 +1139,11 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
             return false;
         }
 
+        $visibility = $tokens[$instPtr]['code'];
+
         // It's an instance property declaration.
-        $this->markVariableDeclaration($varName, 'instance', null, $stackPtr, $currScope);
+        $this->markVariableDeclaration($varName, 'instance', null, $stackPtr, $currScope, false, $visibility);
+
         return true;
     }
 
@@ -1597,7 +1608,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
             return;
         }
         foreach ($scopeInfo->variables as $varInfo) {
-            if ($varInfo->ignoreUnused || isset($varInfo->firstRead)) {
+            if ($varInfo->isIgnoreUnused() || isset($varInfo->firstRead)) {
                 continue;
             }
             if ($this->allowUnusedFunctionParameters && $varInfo->scopeType == 'param') {
