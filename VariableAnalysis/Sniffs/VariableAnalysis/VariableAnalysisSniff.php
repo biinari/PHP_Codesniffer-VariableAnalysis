@@ -1391,6 +1391,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
 
         //all instance variables are fine if the user says so
         if ($this->allowAllInstanceVariables && $this->isInstanceVariable($phpcsFile, $stackPtr)) {
+            $this->markVariableRead($varName, $stackPtr, $currScope);
             return;
         }
 
