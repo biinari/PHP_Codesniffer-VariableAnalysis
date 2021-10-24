@@ -6,7 +6,7 @@
         "php": ">=7.0.0",
         "squizlabs/php_codesniffer": ">=2.7.1",
         "dealerdirect/phpcodesniffer-composer-installer" : "*",
-        "frenck/php-compatibility": "*"
+        "phpcompatibility/php-compatibility": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0"
