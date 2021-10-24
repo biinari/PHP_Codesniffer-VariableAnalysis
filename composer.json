@@ -4,7 +4,7 @@
     "description": "Provides PHP CodeSniffer sniffs to find unused and undefined variables.",
     "require": {
         "php": ">=7.0.0",
-        "squizlabs/php_codesniffer": ">=2.7.1",
+        "squizlabs/php_codesniffer": ">= 2.7.1 <4",
         "dealerdirect/phpcodesniffer-composer-installer" : "*",
         "phpcompatibility/php-compatibility": "*"
     },
