@@ -12,5 +12,6 @@
         "phpunit/phpunit": "~4.0"
     },
     "license": "BSD",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
