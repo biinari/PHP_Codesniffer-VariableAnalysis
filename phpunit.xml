@@ -2,7 +2,7 @@
 <phpunit bootstrap="phpunit-bootstrap.php">
     <testsuites>
         <testsuite name="PHP_CodeSniffer Test Suite">
-            <file>vendor/squizlabs/php_codesniffer/tests/Standards/AllSniffs.php</file>
+            <directory suffix="UnitTest.php">VariableAnalysis/Tests/VariableAnalysis</directory>
         </testsuite>
     </testsuites>
     <php>
