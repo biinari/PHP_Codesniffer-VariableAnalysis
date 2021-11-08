@@ -9,7 +9,7 @@
         "phpcompatibility/php-compatibility": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~7.0"
     },
     "license": "BSD",
     "minimum-stability": "dev",
