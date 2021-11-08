@@ -3,3 +3,4 @@ util/
 mybuild
 mytest
 myrun
+.phpunit.result.cache
