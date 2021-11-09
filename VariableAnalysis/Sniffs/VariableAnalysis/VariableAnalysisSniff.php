@@ -12,69 +12,11 @@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 
-/**
- * Holds details of a scope.
- *
- * @category  PHP
- * @package   PHP_CodeSniffer
- * @author    Sam Graham <php-codesniffer-variableanalysis BLAHBLAH illusori.co.uk>
- * @copyright 2011-2012 Sam Graham <php-codesniffer-plugins BLAHBLAH illusori.co.uk>
- * @link      http://pear.php.net/package/PHP_CodeSniffer
- */
-class ScopeInfo {
-    public $owner;
-    public $opener;
-    public $closer;
-    public $variables = array();
-
-    function __construct($currScope) {
-        $this->owner = $currScope;
-        // TODO: extract opener/closer
-    }
-}
-
-/**
- * Holds details of a variable within a scope.
- *
- * @category  PHP
- * @package   PHP_CodeSniffer
- * @author    Sam Graham <php-codesniffer-variableanalysis BLAHBLAH illusori.co.uk>
- * @copyright 2011 Sam Graham <php-codesniffer-variableanalysis BLAHBLAH illusori.co.uk>
- * @link      http://pear.php.net/package/PHP_CodeSniffer
- */
-class VariableInfo {
-    public $name;
-    /**
-     * What scope the variable has: local, param, static, global, bound
-     */
-    public $scopeType;
-    public $typeHint;
-    public $passByReference = false;
-    public $firstDeclared;
-    public $firstInitialized;
-    public $firstRead;
-    public $ignoreUnused = false;
-    public $visibility;
-
-    static $scopeTypeDescriptions = array(
-        'local'  => 'variable',
-        'param'  => 'function parameter',
-        'static' => 'static variable',
-        'global' => 'global variable',
-        'bound'  => 'bound variable',
-        'instance' => 'instance variable',
-    );
-
-    public function isIgnoreUnused()
-    {
-        return $this->ignoreUnused === true
-          || in_array($this->visibility, array(T_PUBLIC, T_PROTECTED));
-    }
-
-    function __construct($varName) {
-        $this->name = $varName;
-    }
-}
+namespace VariableAnalysis\Sniffs\VariableAnalysis;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Files\File;
+use VariableAnalysis\Scope\ScopeInfo;
+use VariableAnalysis\Scope\VariableInfo;
 
 /**
  * Checks the for undefined function variables.
@@ -88,7 +30,7 @@ class VariableInfo {
  * @copyright 2011 Sam Graham <php-codesniffer-variableanalysis BLAHBLAH illusori.co.uk>
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements PHP_CodeSniffer_Sniff
+class VariableAnalysisSniff implements Sniff
 {
     /**
      * The current phpcsFile being checked.
@@ -421,13 +363,13 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                        $stackPtr  The position of the current token
+     *                                              in the stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr) {
+    public function process(File $phpcsFile, $stackPtr) {
         $tokens = $phpcsFile->getTokens();
         $token  = $tokens[$stackPtr];
 
@@ -595,7 +537,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     function findFunctionPrototype(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -625,7 +567,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
      * @param $phpcsFile
      * @param $stackPtr
      */
-    protected function isInstanceVariable(PHP_CodeSniffer_File $phpcsFile, $stackPtr) {
+    protected function isInstanceVariable(File $phpcsFile, $stackPtr) {
         $tokens = $phpcsFile->getTokens();
 
         if ($prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true, null, true)) {
@@ -641,7 +583,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     function findVariableScope(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -676,7 +618,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     function isNextThingAnAssign(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -692,7 +634,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     function findWhereAssignExecuted(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -727,7 +669,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     function findContainingBrackets(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -741,7 +683,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
 
 
     function findFunctionCall(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -758,7 +700,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     function findFunctionCallArguments(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -801,7 +743,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForFunctionPrototype(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -869,7 +811,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
      * isset() marks a variable as declared
      */
     protected function checkForIsset(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -893,7 +835,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
  
     protected function checkForCatchBlock(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -928,7 +870,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForThisWithinClass(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -960,7 +902,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForSuperGlobal(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -989,7 +931,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForStaticMember(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1049,7 +991,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForAssignment(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1071,7 +1013,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForListAssignment(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1102,7 +1044,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForGlobalDeclaration(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1125,7 +1067,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForInstanceDeclaration(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1148,7 +1090,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForStaticDeclaration(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1212,7 +1154,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForForeachLoopVar(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1235,7 +1177,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForPassByReferenceFunctionCall(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1300,7 +1242,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function checkForSymbolicObjectProperty(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $varName,
         $currScope
@@ -1324,14 +1266,14 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     /**
      * Called to process class member vars.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this
-     *                                        token was found.
-     * @param int                  $stackPtr  The position where the token was found.
+     * @param PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this
+     *                                              token was found.
+     * @param int                        $stackPtr  The position where the token was found.
      *
      * @return void
      */
     protected function processMemberVar(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -1342,14 +1284,14 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     /**
      * Called to process normal member vars.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this
-     *                                        token was found.
-     * @param int                  $stackPtr  The position where the token was found.
+     * @param PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this
+     *                                              token was found.
+     * @param int                        $stackPtr  The position where the token was found.
      *
      * @return void
      */
     protected function processVariable(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr
     ) {
         $tokens = $phpcsFile->getTokens();
@@ -1475,15 +1417,15 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
      * Note that there may be more than one variable in the string, which will
      * result only in one call for the string.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this
-     *                                        token was found.
-     * @param int                  $stackPtr  The position where the double quoted
-     *                                        string was found.
+     * @param PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this
+     *                                              token was found.
+     * @param int                        $stackPtr  The position where the double quoted
+     *                                              string was found.
      *
      * @return void
      */
     protected function processVariableInString(
-        PHP_CodeSniffer_File
+        File
         $phpcsFile,
         $stackPtr
     ) {
@@ -1509,7 +1451,7 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     }
 
     protected function processCompactArguments(
-        PHP_CodeSniffer_File
+        File
         $phpcsFile,
         $stackPtr,
         $arguments,
@@ -1565,15 +1507,15 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
     /**
      * Called to process variables named in a call to compact().
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this
-     *                                        token was found.
-     * @param int                  $stackPtr  The position where the call to compact()
-     *                                        was found.
+     * @param PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this
+     *                                              token was found.
+     * @param int                        $stackPtr  The position where the call to compact()
+     *                                              was found.
      *
      * @return void
      */
     protected function processCompact(
-        PHP_CodeSniffer_File
+        File
         $phpcsFile,
         $stackPtr
     ) {
@@ -1593,14 +1535,14 @@ class VariableAnalysis_Sniffs_VariableAnalysis_VariableAnalysisSniff implements 
      * Note that although triggered by the closing curly brace of the scope, $stackPtr is
      * the scope conditional, not the closing curly brace.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this
-     *                                        token was found.
-     * @param int                  $stackPtr  The position of the scope conditional.
+     * @param PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this
+     *                                              token was found.
+     * @param int                        $stackPtr  The position of the scope conditional.
      *
      * @return void
      */
     protected function processScopeClose(
-        PHP_CodeSniffer_File
+        File
         $phpcsFile,
         $stackPtr
     ) {

@@ -1,4 +1,9 @@
 <?php
+
+namespace VariableAnalysis\Tests\VariableAnalysis;
+
+use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
+
 /**
  * Unit test class for the VariableAnalysis sniff.
  *
@@ -15,7 +20,7 @@
  * @version   Release: @package_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class VariableAnalysis_Tests_VariableAnalysis_VariableAnalysisUnitTest extends AbstractSniffUnitTest
+class VariableAnalysisUnitTest extends AbstractSniffUnitTest
 {
 
     private function _getWarningAndErrorList()
